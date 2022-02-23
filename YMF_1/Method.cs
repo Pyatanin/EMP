@@ -1,6 +1,6 @@
 ﻿namespace YMF_1;
 
-public class Metod
+public class Method
 {
 
 }

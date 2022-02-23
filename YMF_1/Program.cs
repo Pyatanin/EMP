@@ -14,16 +14,3 @@ public static class Program
     }
 }
 
-public class InputModel
-{
-    public int Test { get; set; }
-    public bool Uniform { get; set; }
-    public double[] Grid_X { get; set; }
-    public double[] Grid_Y { get; set; }
-    public double Discharge_ratio_X { get; set; }
-    public double Discharge_ratio_Y { get; set; }
-    public int Amount_points_X { get; set; }
-    public int Amount_points_Y { get; set; }
-    public double[] Omega_X { get; set; }
-    public double[] Omega_Y { get; set; }
-}
