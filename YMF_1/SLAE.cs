@@ -17,7 +17,7 @@ public class Matrix
         N = 0;
     }
 
-    public Matrix(Grid grid, Dictionary<string, string> boundaryConditions)
+    public Matrix(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
         var l0 = new double[grid.Nodes.Length - 1];
@@ -43,24 +43,22 @@ public class Matrix
                 else
                 {
                     var shift = grid.X.Length;
-                    
+
                     var hXLeft = grid.Nodes[i].X - grid.Nodes[i - 1].X;
                     var hXRight = grid.Nodes[i + 1].X - grid.Nodes[i].X;
-                    
+
                     var hYLower = grid.Nodes[i].Y - grid.Nodes[i - shift].Y;
                     var hYUpper = grid.Nodes[i + shift].Y - grid.Nodes[i].Y;
 
-                    diag[i] = -grid.Lambda * (2 / (hXLeft * hXRight) + 2 / (hYLower * hYUpper)) + grid.Gamma;
+                    diag[i] = -input.Lambda * (2 / (hXLeft * hXRight) + 2 / (hYLower * hYUpper)) + input.Gamma;
 
-                    u0[i] = grid.Lambda * 2 / (hXRight * (hXRight + hXLeft));
-                    l0[i - 1] = grid.Lambda * 2 / (hXLeft * (hXRight + hXLeft));
+                    u0[i] = input.Lambda * 2 / (hXRight * (hXRight + hXLeft));
+                    l0[i - 1] = input.Lambda * 2 / (hXLeft * (hXRight + hXLeft));
 
-                    l1[i - shift] = grid.Lambda * 2 / (hYUpper * (hYUpper + hYLower));
-                    u1[i] = grid.Lambda * 2 / (hYLower * (hYUpper + hYLower));
+                    l1[i - shift] = input.Lambda * 2 / (hYUpper * (hYUpper + hYLower));
+                    u1[i] = input.Lambda * 2 / (hYLower * (hYUpper + hYLower));
                 }
             }
-            
-            
         }
 
         Diag = diag;
@@ -69,6 +67,4 @@ public class Matrix
         UpperPart[1] = u1;
         UpperPart[0] = u0;
     }
-
-
 }
