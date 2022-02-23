@@ -4,6 +4,10 @@ namespace YMF_1;
 
 public static class Program
 {
+    /// <summary>
+    /// Docs
+    /// </summary>
+    
     public static void Main()
     {
         var input = JsonSerializer.Deserialize<InputModel>(File.ReadAllText("Input.json"));
