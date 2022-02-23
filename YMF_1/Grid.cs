@@ -28,7 +28,7 @@ public class Grid
 
     public readonly Node[] Nodes;
 
-    private bool IsFictiveCheck(InputModel input, double x, double y)
+    private bool IsFictiveCheck(InputJsonModel inputJson, double x, double y)
     {
         // +-----+
         // |     |
@@ -37,30 +37,15 @@ public class Grid
         // |-----|------------+
         // |                  |
         // +-----+------------+
-        if (input.OmegaX[0] > x || input.OmegaY[0] > y)
+        if (inputJson.OmegaX[0] > x || inputJson.OmegaY[0] > y)
         {
             return true;
         }
-        if (input.OmegaX[1] < x && input.OmegaY[1] < y)
+        if (inputJson.OmegaX[1] < x && inputJson.OmegaY[1] < y)
         {
             return true;
         }
-        if (input.OmegaX[2] < x || input.OmegaY[2] < y)
-        {
-            return true;
-        }
-
-        return false;
-    }
-    
-    public bool IsOnBorderCheck(InputModel input, double x, double y)
-    {
-        if (input.OmegaX[0] == x || input.OmegaY[0] == y || input.OmegaX[2] == x || input.OmegaY[2] == y) 
-        {
-            return true;
-        }
-
-        if (input.OmegaX[1] == x && input.OmegaY[1] < y || input.OmegaX[1] < x && input.OmegaY[1] == y) 
+        if (inputJson.OmegaX[2] < x || inputJson.OmegaY[2] < y)
         {
             return true;
         }
@@ -68,19 +53,34 @@ public class Grid
         return false;
     }
     
-    public string GetBorderType(InputModel input, double x, double y)
+    public bool IsOnBorderCheck(InputJsonModel inputJson, double x, double y)
     {
-        if (input.OmegaX[0] == x) return "Left";
+        if (inputJson.OmegaX[0] == x || inputJson.OmegaY[0] == y || inputJson.OmegaX[2] == x || inputJson.OmegaY[2] == y) 
+        {
+            return true;
+        }
 
-        if (input.OmegaY[2] == y) return "UpperLeft";
+        if (inputJson.OmegaX[1] == x && inputJson.OmegaY[1] < y || inputJson.OmegaX[1] < x && inputJson.OmegaY[1] == y) 
+        {
+            return true;
+        }
 
-        if (input.OmegaX[1] == x && y >= input.OmegaY[1]) return "RightUpper";
+        return false;
+    }
+    
+    public string GetBorderType(InputJsonModel inputJson, double x, double y)
+    {
+        if (inputJson.OmegaX[0] == x) return "Left";
 
-        if (input.OmegaY[1] == y && x >= input.OmegaY[1]) return "UpperRight";
+        if (inputJson.OmegaY[2] == y) return "UpperLeft";
 
-        if (input.OmegaX[2] == x) return "RightLower";
+        if (inputJson.OmegaX[1] == x && y >= inputJson.OmegaY[1]) return "RightUpper";
 
-        if (input.OmegaY[0] == y) return "Lower";
+        if (inputJson.OmegaY[1] == y && x >= inputJson.OmegaY[1]) return "UpperRight";
+
+        if (inputJson.OmegaX[2] == x) return "RightLower";
+
+        if (inputJson.OmegaY[0] == y) return "Lower";
 
         return "None";
     }
@@ -100,52 +100,52 @@ public class Grid
     //    |            |
     //    +------------+
     //      Lower
-    public Grid(InputModel input)
+    public Grid(InputJsonModel inputJson)
     {
-        L = input.Lambda;
-        G = input.Gamma;
+        L = inputJson.Lambda;
+        G = inputJson.Gamma;
         
-        if (Math.Abs(input.DischargeRatioX - 1) > 1e-10)
+        if (Math.Abs(inputJson.DischargeRatioX - 1) > 1e-10)
         {
-            var sumKx = (1 - Math.Pow(input.DischargeRatioX, input.AmountPointsX - 1)) / (1 - input.DischargeRatioX);
-            Hx = (input.OmegaX[2] - input.OmegaX[0]) / sumKx;
-            var x = new double[input.AmountPointsX];
-            for (var i = 0; i < input.AmountPointsX; i++)
+            var sumKx = (1 - Math.Pow(inputJson.DischargeRatioX, inputJson.AmountPointsX - 1)) / (1 - inputJson.DischargeRatioX);
+            Hx = (inputJson.OmegaX[2] - inputJson.OmegaX[0]) / sumKx;
+            var x = new double[inputJson.AmountPointsX];
+            for (var i = 0; i < inputJson.AmountPointsX; i++)
             {
-                x[i] = input.OmegaX[0] + Hx * (1 - Math.Pow(input.DischargeRatioX, i)) / (1 - input.DischargeRatioX);
+                x[i] = inputJson.OmegaX[0] + Hx * (1 - Math.Pow(inputJson.DischargeRatioX, i)) / (1 - inputJson.DischargeRatioX);
             }
             X = x;
         }
         else
         {
-            var x = new double[input.AmountPointsX+1];
-            Hx = (input.OmegaX[2] - input.OmegaX[0]) / input.AmountPointsX;
-            for (var i = 0; i <= input.AmountPointsX; i++)
+            var x = new double[inputJson.AmountPointsX+1];
+            Hx = (inputJson.OmegaX[2] - inputJson.OmegaX[0]) / inputJson.AmountPointsX;
+            for (var i = 0; i <= inputJson.AmountPointsX; i++)
             {
-                x[i] = input.OmegaX[0] + i * Hx;
+                x[i] = inputJson.OmegaX[0] + i * Hx;
             }
             X = x;
         }
 
-        if (Math.Abs(input.DischargeRatioY - 1) > 1e-10) 
+        if (Math.Abs(inputJson.DischargeRatioY - 1) > 1e-10) 
         {
-            var sumKy = (1 - Math.Pow(input.DischargeRatioY, input.AmountPointsY - 1)) /
-                          (1 - input.DischargeRatioY);
-            Hy = (input.OmegaY[2] - input.OmegaY[0]) / sumKy;
-            var y = new double[input.AmountPointsY];
-            for (var i = 0; i < input.AmountPointsY; i++)
+            var sumKy = (1 - Math.Pow(inputJson.DischargeRatioY, inputJson.AmountPointsY - 1)) /
+                          (1 - inputJson.DischargeRatioY);
+            Hy = (inputJson.OmegaY[2] - inputJson.OmegaY[0]) / sumKy;
+            var y = new double[inputJson.AmountPointsY];
+            for (var i = 0; i < inputJson.AmountPointsY; i++)
             {
-                y[i] = input.OmegaY[0] + Hy * (1 - Math.Pow(input.DischargeRatioY, i)) / (1 - input.DischargeRatioY);
+                y[i] = inputJson.OmegaY[0] + Hy * (1 - Math.Pow(inputJson.DischargeRatioY, i)) / (1 - inputJson.DischargeRatioY);
             }
             Y = y;
         }
         else
         {
-            var y = new double[input.AmountPointsY+1];
-            Hy = (input.OmegaY[2] - input.OmegaY[0]) / input.AmountPointsY;
-            for (var i = 0; i <= input.AmountPointsY; i++)
+            var y = new double[inputJson.AmountPointsY+1];
+            Hy = (inputJson.OmegaY[2] - inputJson.OmegaY[0]) / inputJson.AmountPointsY;
+            for (var i = 0; i <= inputJson.AmountPointsY; i++)
             {
-                y[i] = input.OmegaY[0] + i * Hy;
+                y[i] = inputJson.OmegaY[0] + i * Hy;
             }
             Y = y;
         }
@@ -159,9 +159,9 @@ public class Grid
                 nodes[num] = new Node(
                     j, 
                     i, 
-                    IsFictiveCheck(input, j, i), 
-                    IsOnBorderCheck(input, j, i), 
-                    GetBorderType(input, j, i)
+                    IsFictiveCheck(inputJson, j, i), 
+                    IsOnBorderCheck(inputJson, j, i), 
+                    GetBorderType(inputJson, j, i)
                     );
                 num++;
             }
