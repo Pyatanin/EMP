@@ -1,23 +1,8 @@
 ﻿namespace YMF_1;
 
-public class Matrix
+public class Slae
 {
-    public readonly double[] Diag;
-
-    public readonly double[][] LowPart = new double[2][];
-
-    public readonly int M;
-    public readonly int N;
-
-    public readonly double[][] UpperPart = new double[2][];
-
-    public Matrix(Grid grid)
-    {
-        M = 0;
-        N = 0;
-    }
-
-    public Matrix(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
+    public Slae(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
 
@@ -29,6 +14,8 @@ public class Matrix
 
         var shift = grid.X.Length;
 
+        var result = new double[grid.Nodes.Length];
+        var rightSideVector = new double[grid.Nodes.Length];
         for (var i = 0; i < grid.Nodes.Length; i++)
         {
             if (!grid.Nodes[i].IsFictive)
@@ -37,11 +24,42 @@ public class Matrix
                 {
                     if (boundaryConditions[grid.Nodes[i].BorderType] == "First")
                     {
-                        BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        diag[i] = 1.0;
+                        rightSideVector[i] = BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                     }
                     else
                     {
-                        BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        if (grid.Nodes[i].BorderType == "Left")
+                        {
+                            var hX = grid.Nodes[i + 1].X - grid.Nodes[i].X;
+                            diag[i] = input.Lambda / hX;
+                            u0[i] = -input.Lambda / hX;
+                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        }
+
+                        if (grid.Nodes[i].BorderType == "Upper")
+                        {
+                            var hY = grid.Nodes[i].Y - grid.Nodes[i - shift].Y;
+                            diag[i] = input.Lambda / hY;
+                            l1[i - shift] = -input.Lambda / hY;
+                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        }
+
+                        if (grid.Nodes[i].BorderType == "RightUpper" || grid.Nodes[i].BorderType == "RightLower")
+                        {
+                            var hX = grid.Nodes[i].X - grid.Nodes[i - 1].X;
+                            diag[i] = input.Lambda / hX;
+                            l0[i - 1] = -input.Lambda / hX;
+                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        }
+
+                        if (grid.Nodes[i].BorderType == "LowerRight" || grid.Nodes[i].BorderType == "LowerLeft")
+                        {
+                            var hY = grid.Nodes[i + shift].Y - grid.Nodes[i].Y;
+                            diag[i] = input.Lambda / hY;
+                            u1[i] = -input.Lambda / hY;
+                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        }
                     }
                 }
                 else
@@ -59,14 +77,18 @@ public class Matrix
 
                     l1[i - shift] = input.Lambda * 2 / (hYUpper * (hYUpper + hYLower));
                     u1[i] = input.Lambda * 2 / (hYLower * (hYUpper + hYLower));
+
+                    rightSideVector[i] = RightSideFunc.Eval(grid.Nodes[i].X, grid.Nodes[i].Y);
                 }
             }
         }
 
-        Diag = diag;
-        LowPart[1] = l1;
-        LowPart[0] = l0;
-        UpperPart[1] = u1;
-        UpperPart[0] = u0;
+        Matrix = new Matrix(diag, l0, l1, u0, u1, shift);
+        RightSideVector = rightSideVector;
+        Result = result;
     }
+
+    public double[] RightSideVector;
+    public Matrix Matrix;
+    public double[] Result;
 }
