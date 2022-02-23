@@ -2,98 +2,61 @@
 
 public static class BoundaryFunc
 {
-    //    UpperLeft
-    //    +----+
-    //    |    |
-    //    |    |
-    // Left    |
-    //    |   RightUpper
-    //    |    |
-    //    |    |
-    //    |    +-UpperRight
-    //    |            +
-    //    |           RightLower
-    //    |            |
-    //    +------------+
-    //      Lower
-
-    #region FirstBoundaryFunctions
+    //    GRID TYPE
+    //   +--Upper----
+    //   |         LeftUpper
+    //   |          +
+    //   |     |LowerRight
+    //   |     |
+    //   |     |
+    // Left   LeftLower
+    //   |     |
+    //   |     |
+    //   +-----+
+    //    LowerLeft
     
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstLeft =
+    public static Dictionary<string, Func<double, double, double>> First = new()
     {
-        (x, y) => 1.0,
+        {
+            "Left", (x, y) => x + y
+        },
+        {
+            "Upper", (x, y) => x + y
+        },
+        {
+            "RightUpper", (x, y) => x + y
+        },
+        {
+            "LowerRight", (x, y) => x + y
+        },
+        {
+            "RightLower", (x, y) => x + y
+        },
+        {
+            "LowerLeft", (x, y) => x + y
+        }
+    };
+    
+    public static Dictionary<string, Func<double, double, double>> Second = new()
+    {
+        {
+            "Left", (x, y) => x + y
+        },
+        {
+            "Upper", (x, y) => x + y
+        },
+        {
+            "RightUpper", (x, y) => x + y
+        },
+        {
+            "LowerRight", (x, y) => x + y
+        },
+        {
+            "RightLower", (x, y) => x + y
+        },
+        {
+            "LowerLeft", (x, y) => x + y
+        }
     };
 
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstRightLower =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstUpperRight =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstRightUpper =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstUpperLeft =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] FirstLower =
-    {
-        (x, y) => 2.0,
-    };
-    
-    #endregion
-
-    #region SecondBoundaryFunctions
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondLeft =
-    {
-        (x, y) => 1.0,
-    };
-
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondRightLower =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondUpperRight =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondRightUpper =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondUpperLeft =
-    {
-        (x, y) => 2.0,
-    };
-    
-    // Insert testing number
-    public static readonly Func<double, double, double>[] SecondLower =
-    {
-        (x, y) => 2.0,
-    };
-    
-    #endregion
 }

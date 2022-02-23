@@ -1,6 +1,6 @@
 ﻿namespace YMF_1;
 
-public class InputJsonModel
+public class InputModel
 {
     public int Test { get; set; }
     public int Lambda { get; set; }

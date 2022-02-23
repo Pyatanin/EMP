@@ -11,19 +11,19 @@ public class Matrix
 
     public readonly double[][] UpperPart = new double[2][];
 
-    public Matrix()
+    public Matrix(Grid grid)
     {
         M = 0;
         N = 0;
     }
 
-    public Matrix(Grid grid)
+    public Matrix(Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
-        var l0 = new double[grid.Nodes.Length-1];
-        var l1 = new double[grid.Nodes.Length-grid.X.Length+2];
-        var u0 = new double[grid.Nodes.Length-1];
-        var u1 = new double[grid.Nodes.Length-grid.X.Length+2];
+        var l0 = new double[grid.Nodes.Length - 1];
+        var l1 = new double[grid.Nodes.Length - grid.X.Length + 2];
+        var u0 = new double[grid.Nodes.Length - 1];
+        var u1 = new double[grid.Nodes.Length - grid.X.Length + 2];
 
         for (var i = 0; i < grid.Nodes.Length; i++)
         {
@@ -31,7 +31,14 @@ public class Matrix
             {
                 if (grid.Nodes[i].IsOnBorder)
                 {
-
+                    if (boundaryConditions[grid.Nodes[i].BorderType] == "First")
+                    {
+                        BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                    }
+                    else
+                    {
+                        BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                    }
                 }
                 else
                 {
@@ -43,13 +50,13 @@ public class Matrix
                     var hYLower = grid.Nodes[i].Y - grid.Nodes[i - shift].Y;
                     var hYUpper = grid.Nodes[i + shift].Y - grid.Nodes[i].Y;
 
-                    diag[i] = -grid.L * (2 / (hXLeft * hXRight) + 2 / (hYLower * hYUpper)) + grid.G;
+                    diag[i] = -grid.Lambda * (2 / (hXLeft * hXRight) + 2 / (hYLower * hYUpper)) + grid.Gamma;
 
-                    u0[i] = grid.L * 2 / (hXRight * (hXRight + hXLeft));
-                    l0[i - 1] = grid.L * 2 / (hXLeft * (hXRight + hXLeft));
+                    u0[i] = grid.Lambda * 2 / (hXRight * (hXRight + hXLeft));
+                    l0[i - 1] = grid.Lambda * 2 / (hXLeft * (hXRight + hXLeft));
 
-                    l1[i - shift] = grid.L * 2 / (hYUpper * (hYUpper + hYLower));
-                    u1[i] = grid.L * 2 / (hYLower * (hYUpper + hYLower));
+                    l1[i - shift] = grid.Lambda * 2 / (hYUpper * (hYUpper + hYLower));
+                    u1[i] = grid.Lambda * 2 / (hYLower * (hYUpper + hYLower));
                 }
             }
             
