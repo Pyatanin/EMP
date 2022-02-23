@@ -3,8 +3,8 @@
 public class InputModel
 {
     public int Test { get; set; }
-    public double[] GridX { get; set; }
-    public double[] GridY { get; set; }
+    public int Lambda { get; set; }
+    public int Gamma { get; set; }
     public double DischargeRatioX { get; set; }
     public double DischargeRatioY { get; set; }
     public int AmountPointsX { get; set; }

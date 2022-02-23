@@ -9,7 +9,7 @@ public static class Program
         var data = File.ReadAllText("input.json");
         var input = JsonSerializer.Deserialize<InputModel>(data);
         var grid = new Grid(input);
-        Matrix matrix = new Matrix(grid);
+        var matrix = new Matrix(grid); 
         var bom = 0;
     }
 }
