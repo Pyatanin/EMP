@@ -20,10 +20,14 @@ public class Matrix
     public Matrix(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
+
         var l0 = new double[grid.Nodes.Length - 1];
         var l1 = new double[grid.Nodes.Length - grid.X.Length + 2];
+
         var u0 = new double[grid.Nodes.Length - 1];
         var u1 = new double[grid.Nodes.Length - grid.X.Length + 2];
+
+        var shift = grid.X.Length;
 
         for (var i = 0; i < grid.Nodes.Length; i++)
         {
@@ -42,8 +46,6 @@ public class Matrix
                 }
                 else
                 {
-                    var shift = grid.X.Length;
-
                     var hXLeft = grid.Nodes[i].X - grid.Nodes[i - 1].X;
                     var hXRight = grid.Nodes[i + 1].X - grid.Nodes[i].X;
 
