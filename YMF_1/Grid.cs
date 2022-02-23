@@ -2,9 +2,6 @@
 
 public class Grid
 {
-    public double Lambda;
-    public double Gamma;
-    
     public class Node
     {
         public double X { get; private set; }
@@ -22,10 +19,7 @@ public class Grid
             BorderType = borderType;
         }
     }
-    
-    public double Hx { get; private set; }
-    public double Hy { get; private set; }
-    
+
     public double[] X { get; private set; }
     public double[] Y { get; private set; }
 
@@ -53,18 +47,18 @@ public class Grid
 
         return false;
     }
-     
+
     private bool IsOnBorderCheck(InputModel input, double x, double y)
     {
-        if (x == input.OmegaX[0] || x ==  input.OmegaX[2] || y == input.OmegaY[0] || y == input.OmegaY[2] || 
+        if (x == input.OmegaX[0] || x == input.OmegaX[2] || y == input.OmegaY[0] || y == input.OmegaY[2] ||
             y == input.OmegaY[1] && x >= input.OmegaX[1] || x == input.OmegaX[1] && y <= input.OmegaY[1])
         {
             return true;
         }
-        
+
         return false;
     }
-    
+
     private string GetBorderType(InputModel input, double x, double y)
     {
         if (x == input.OmegaX[0]) return "Left";
@@ -84,17 +78,14 @@ public class Grid
 
     public Grid(InputModel input)
     {
-        Lambda = input.Lambda;
-        Gamma = input.Gamma;
-
         if (Math.Abs(input.DischargeRatioX - 1) > 1e-10)
         {
             var sumKx = (1 - Math.Pow(input.DischargeRatioX, input.AmountPointsX - 1)) / (1 - input.DischargeRatioX);
-            Hx = (input.OmegaX[2] - input.OmegaX[0]) / sumKx;
+            var hX = (input.OmegaX[2] - input.OmegaX[0]) / sumKx;
             var x = new double[input.AmountPointsX];
             for (var i = 0; i < input.AmountPointsX; i++)
             {
-                x[i] = input.OmegaX[0] + Hx * (1 - Math.Pow(input.DischargeRatioX, i)) / (1 - input.DischargeRatioX);
+                x[i] = input.OmegaX[0] + hX * (1 - Math.Pow(input.DischargeRatioX, i)) / (1 - input.DischargeRatioX);
             }
 
             X = x;
@@ -102,10 +93,10 @@ public class Grid
         else
         {
             var x = new double[input.AmountPointsX];
-            Hx = (input.OmegaX[2] - input.OmegaX[0]) / (input.AmountPointsX - 1);
+            var hX = (input.OmegaX[2] - input.OmegaX[0]) / (input.AmountPointsX - 1);
             for (var i = 0; i < input.AmountPointsX; i++)
             {
-                x[i] = input.OmegaX[0] + i * Hx;
+                x[i] = input.OmegaX[0] + i * hX;
             }
 
             X = x;
@@ -114,11 +105,11 @@ public class Grid
         if (Math.Abs(input.DischargeRatioY - 1) > 1e-10)
         {
             var sumKy = (1 - Math.Pow(input.DischargeRatioY, input.AmountPointsY - 1)) / (1 - input.DischargeRatioY);
-            Hy = (input.OmegaY[2] - input.OmegaY[0]) / sumKy;
+            var hY = (input.OmegaY[2] - input.OmegaY[0]) / sumKy;
             var y = new double[input.AmountPointsY];
             for (var i = 0; i < input.AmountPointsY; i++)
             {
-                y[i] = input.OmegaY[0] + Hy * (1 - Math.Pow(input.DischargeRatioY, i)) / (1 - input.DischargeRatioY);
+                y[i] = input.OmegaY[0] + hY * (1 - Math.Pow(input.DischargeRatioY, i)) / (1 - input.DischargeRatioY);
             }
 
             Y = y;
@@ -126,10 +117,10 @@ public class Grid
         else
         {
             var y = new double[input.AmountPointsY];
-            Hy = (input.OmegaY[2] - input.OmegaY[0]) / (input.AmountPointsY - 1);
+            var hY = (input.OmegaY[2] - input.OmegaY[0]) / (input.AmountPointsY - 1);
             for (var i = 0; i < input.AmountPointsY; i++)
             {
-                y[i] = input.OmegaY[0] + i * Hy;
+                y[i] = input.OmegaY[0] + i * hY;
             }
 
             Y = y;
@@ -160,4 +151,3 @@ public class Grid
         Nodes = nodes;
     }
 }
-
