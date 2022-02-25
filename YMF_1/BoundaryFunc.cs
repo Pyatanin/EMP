@@ -14,7 +14,7 @@ public static class BoundaryFunc
     //   |     |
     //   +-----+
     //    LowerLeft
-    
+
     public static Dictionary<string, Func<double, double, double>> First = new()
     {
         {
@@ -36,7 +36,7 @@ public static class BoundaryFunc
             "LowerLeft", (x, y) => x + y
         }
     };
-    
+
     public static Dictionary<string, Func<double, double, double>> Second = new()
     {
         {
@@ -58,5 +58,4 @@ public static class BoundaryFunc
             "LowerLeft", (x, y) => x + y
         }
     };
-
 }

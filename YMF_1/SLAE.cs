@@ -2,6 +2,22 @@
 
 public class Slae
 {
+    public void Solve(InputModel input)
+    {
+        Result = Methods.IterateGs(Result, Matrix, 1.0, RightSideVector);
+        var residual = Methods.RelativeResidual(Matrix, Result, RightSideVector);
+        var iter = 1;
+        var resultPred = new double[Result.Length];
+        while (iter <= input.MaxIter && input.Eps < residual &&
+               !Methods.CheckIsStagnate(resultPred, Result, input.Delta))
+        {
+            Result.AsSpan().CopyTo(resultPred);
+            Result = Methods.IterateGs(Result, Matrix, 1.0, RightSideVector);
+            residual = Methods.RelativeResidual(Matrix, Result, RightSideVector);
+            iter++;
+        }
+    }
+
     public Slae(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
@@ -25,7 +41,8 @@ public class Slae
                     if (boundaryConditions[grid.Nodes[i].BorderType] == "First")
                     {
                         diag[i] = 1.0;
-                        rightSideVector[i] = BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                        rightSideVector[i] =
+                            BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                     }
                     else
                     {
@@ -34,7 +51,8 @@ public class Slae
                             var hX = grid.Nodes[i + 1].X - grid.Nodes[i].X;
                             diag[i] = input.Lambda / hX;
                             u0[i] = -input.Lambda / hX;
-                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                            rightSideVector[i] =
+                                BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                         }
 
                         if (grid.Nodes[i].BorderType == "Upper")
@@ -42,7 +60,8 @@ public class Slae
                             var hY = grid.Nodes[i].Y - grid.Nodes[i - shift].Y;
                             diag[i] = input.Lambda / hY;
                             l1[i - shift] = -input.Lambda / hY;
-                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                            rightSideVector[i] =
+                                BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                         }
 
                         if (grid.Nodes[i].BorderType == "RightUpper" || grid.Nodes[i].BorderType == "RightLower")
@@ -50,7 +69,8 @@ public class Slae
                             var hX = grid.Nodes[i].X - grid.Nodes[i - 1].X;
                             diag[i] = input.Lambda / hX;
                             l0[i - 1] = -input.Lambda / hX;
-                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                            rightSideVector[i] =
+                                BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                         }
 
                         if (grid.Nodes[i].BorderType == "LowerRight" || grid.Nodes[i].BorderType == "LowerLeft")
@@ -58,7 +78,8 @@ public class Slae
                             var hY = grid.Nodes[i + shift].Y - grid.Nodes[i].Y;
                             diag[i] = input.Lambda / hY;
                             u1[i] = -input.Lambda / hY;
-                            rightSideVector[i] = BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
+                            rightSideVector[i] =
+                                BoundaryFunc.Second[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                         }
                     }
                 }

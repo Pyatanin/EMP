@@ -6,7 +6,9 @@ public class Grid
     {
         public double X { get; private set; }
         public double Y { get; private set; }
+
         public bool IsFictive { get; private set; }
+
         public bool IsOnBorder { get; private set; }
         public string BorderType { get; private set; }
 

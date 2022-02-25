@@ -7,5 +7,4 @@ namespace YMF_1;
 public static class RightSideFunc
 {
     public static readonly Func<double, double, double> Eval = (x, y) => 0.0;
-
 }
