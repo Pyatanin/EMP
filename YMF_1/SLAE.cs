@@ -23,10 +23,10 @@ public class Slae
         var diag = new double[grid.Nodes.Length];
 
         var l0 = new double[grid.Nodes.Length - 1];
-        var l1 = new double[grid.Nodes.Length - grid.X.Length + 2];
+        var l1 = new double[grid.Nodes.Length - grid.X.Length ];
 
         var u0 = new double[grid.Nodes.Length - 1];
-        var u1 = new double[grid.Nodes.Length - grid.X.Length + 2];
+        var u1 = new double[grid.Nodes.Length - grid.X.Length];
 
         var shift = grid.X.Length;
 

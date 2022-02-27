@@ -18,44 +18,44 @@ public static class BoundaryFunc
     public static Dictionary<string, Func<double, double, double>> First = new()
     {
         {
-            "Left", (x, y) => x + y
+            "Left", (x, y) => 0.0
         },
         {
-            "Upper", (x, y) => x + y
+            "Upper", (x, y) => x
         },
         {
-            "RightUpper", (x, y) => x + y
+            "RightUpper", (x, y) => 3.0
         },
         {
-            "LowerRight", (x, y) => x + y
+            "LowerRight", (x, y) => x
         },
         {
-            "RightLower", (x, y) => x + y
+            "RightLower", (x, y) => 1.0
         },
         {
-            "LowerLeft", (x, y) => x + y
+            "LowerLeft", (x, y) => x
         }
     };
 
     public static Dictionary<string, Func<double, double, double>> Second = new()
     {
         {
-            "Left", (x, y) => x + y
+            "Left", (x, y) => throw new Exception("Illegal access!")
         },
         {
-            "Upper", (x, y) => x + y
+            "Upper", (x, y) => throw new Exception("Illegal access!")
         },
         {
-            "RightUpper", (x, y) => x + y
+            "RightUpper", (x, y) => throw new Exception("Illegal access!")
         },
         {
-            "LowerRight", (x, y) => x + y
+            "LowerRight", (x, y) => throw new Exception("Illegal access!")
         },
         {
-            "RightLower", (x, y) => x + y
+            "RightLower", (x, y) => throw new Exception("Illegal access!")
         },
         {
-            "LowerLeft", (x, y) => x + y
+            "LowerLeft", (x, y) => throw new Exception("Illegal access!")
         }
     };
 }

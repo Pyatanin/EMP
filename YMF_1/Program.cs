@@ -13,7 +13,7 @@ public static class Program
         var slae = new Slae(input!, grid, boundaryConditions!);
 
         slae.Solve(input!);
-
+        var result = Utils.ExcludeFictive(slae.Result, grid);
         // For breakpoint
         var bom = 0;
     }
