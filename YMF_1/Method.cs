@@ -66,9 +66,11 @@ public class Methods
     {
         for (var i = 0; i < x.Length; i++)
         {
-            var sum = ScalarProd(i, matrix, x);
-
-            x[i] += w * (f[i] - sum) / matrix.Diag[i];
+            if (matrix.Diag[i] != 0.0)
+            {
+                var sum = ScalarProd(i, matrix, x);
+                x[i] += w * (f[i] - sum) / matrix.Diag[i];
+            }
         }
 
         return x;
