@@ -2,6 +2,7 @@
 
 public class Slae
 {
+    // The process of solving SLAE by the Gaus-Seidel method
     public void Solve(InputModel input)
     {
         Result = Methods.IterateGs(Result, Matrix, 1.0, RightSideVector);
@@ -18,6 +19,7 @@ public class Slae
         }
     }
 
+    // We collect SLAU for work
     public Slae(InputModel input, Grid grid, Dictionary<string, string> boundaryConditions)
     {
         var diag = new double[grid.Nodes.Length];
@@ -34,16 +36,20 @@ public class Slae
         var rightSideVector = new double[grid.Nodes.Length];
         for (var i = 0; i < grid.Nodes.Length; i++)
         {
+            //Checking if a node is fake
             if (!grid.Nodes[i].IsFictive)
             {
+                //Edge node processing
                 if (grid.Nodes[i].IsOnBorder)
                 {
+                    // Processing node with the first boundary condition
                     if (boundaryConditions[grid.Nodes[i].BorderType] == "First")
                     {
                         diag[i] = 1.0;
                         rightSideVector[i] =
                             BoundaryFunc.First[grid.Nodes[i].BorderType](grid.Nodes[i].X, grid.Nodes[i].Y);
                     }
+                    // Processing node with the second boundary condition
                     else
                     {
                         if (grid.Nodes[i].BorderType == "Left")
@@ -83,6 +89,7 @@ public class Slae
                         }
                     }
                 }
+                // Processing an node point
                 else
                 {
                     var hXLeft = grid.Nodes[i].X - grid.Nodes[i - 1].X;
