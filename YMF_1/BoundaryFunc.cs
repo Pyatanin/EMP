@@ -4,12 +4,12 @@ public static class BoundaryFunc
 {
     //    GRID TYPE
     //   +--Upper----
-    //   |         LeftUpper
+    //   |         RightUpper
     //   |          +
     //   |     |LowerRight
     //   |     |
     //   |     |
-    // Left   LeftLower
+    // Left   RightLower
     //   |     |
     //   |     |
     //   +-----+
@@ -24,7 +24,7 @@ public static class BoundaryFunc
             "Upper", (x, y) => x
         },
         {
-            "RightUpper", (x, y) => 3.0
+            "RightUpper", (x, y) => 2.0
         },
         {
             "LowerRight", (x, y) => x

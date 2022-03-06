@@ -80,58 +80,63 @@ public class Grid
 
     public Grid(InputModel input)
     {
-        if (Math.Abs(input.DischargeRatioX - 1) > 1e-10)
+        var x = new List<double>();
+        x.Add(input.OmegaX[0]);
+        var y = new List<double>();
+        y.Add(input.OmegaY[0]);
+        for (int block = 0; block < 2; block++)
         {
-            var sumKx = (1 - Math.Pow(input.DischargeRatioX, input.AmountPointsX - 1)) / (1 - input.DischargeRatioX);
-            var hX = (input.OmegaX[2] - input.OmegaX[0]) / sumKx;
-            var x = new double[input.AmountPointsX];
-            for (var i = 0; i < input.AmountPointsX; i++)
+
+            if (Math.Abs(input.DischargeRatioX[block] - 1) > 1e-10)
             {
-                x[i] = input.OmegaX[0] + hX * (1 - Math.Pow(input.DischargeRatioX, i)) / (1 - input.DischargeRatioX);
+                var sumKx = (1 - Math.Pow(input.DischargeRatioX[block], input.AmountPointsX[block] - 1)) /
+                            (1 - input.DischargeRatioX[block]);
+                var hX = (input.OmegaX[block+1] - input.OmegaX[block]) / sumKx;
+                for (var i = 1; i < input.AmountPointsX[block]; i++)
+                {
+                    x.Add(input.OmegaX[block] +
+                           hX * (1 - Math.Pow(input.DischargeRatioX[block], i)) / (1 - input.DischargeRatioX[block]));
+                }
+            }
+            else
+            {
+                var hX = (input.OmegaX[block+1] - input.OmegaX[block]) / (input.AmountPointsX[block] - 1);
+                for (var i = 1; i < input.AmountPointsX[block]; i++)
+                {
+                    x.Add(input.OmegaX[block] + i * hX);
+                }
             }
 
-            X = x;
-        }
-        else
-        {
-            var x = new double[input.AmountPointsX];
-            var hX = (input.OmegaX[2] - input.OmegaX[0]) / (input.AmountPointsX - 1);
-            for (var i = 0; i < input.AmountPointsX; i++)
+            if (Math.Abs(input.DischargeRatioY[block] - 1) > 1e-10)
             {
-                x[i] = input.OmegaX[0] + i * hX;
+                var sumKy = (1 - Math.Pow(input.DischargeRatioY[block], input.AmountPointsY[block] - 1)) /
+                            (1 - input.DischargeRatioY[block]);
+                var hY = (input.OmegaY[block+1] - input.OmegaY[block]) / sumKy;
+                for (var i = 1; i < input.AmountPointsY[block]; i++)
+                {
+                    y.Add(input.OmegaY[block] +
+                           hY * (1 - Math.Pow(input.DischargeRatioY[block], i)) / (1 - input.DischargeRatioY[block]));
+                }
+
+            }
+            else
+            {
+                var hY = (input.OmegaY[block+1] - input.OmegaY[block]) / (input.AmountPointsY[block] - 1);
+                for (var i = 1; i < input.AmountPointsY[block]; i++)
+                {
+                    y.Add(input.OmegaY[block] + i * hY);
+                }
+
             }
 
-            X = x;
+            X = x.ToArray();
+            Y = y.ToArray();
         }
 
-        if (Math.Abs(input.DischargeRatioY - 1) > 1e-10)
-        {
-            var sumKy = (1 - Math.Pow(input.DischargeRatioY, input.AmountPointsY - 1)) / (1 - input.DischargeRatioY);
-            var hY = (input.OmegaY[2] - input.OmegaY[0]) / sumKy;
-            var y = new double[input.AmountPointsY];
-            for (var i = 0; i < input.AmountPointsY; i++)
-            {
-                y[i] = input.OmegaY[0] + hY * (1 - Math.Pow(input.DischargeRatioY, i)) / (1 - input.DischargeRatioY);
-            }
-
-            Y = y;
-        }
-        else
-        {
-            var y = new double[input.AmountPointsY];
-            var hY = (input.OmegaY[2] - input.OmegaY[0]) / (input.AmountPointsY - 1);
-            for (var i = 0; i < input.AmountPointsY; i++)
-            {
-                y[i] = input.OmegaY[0] + i * hY;
-            }
-
-            Y = y;
-        }
-
-        if (!Utils.CheckGridConsistency(X, input.OmegaX) || !Utils.CheckGridConsistency(Y, input.OmegaY))
-        {
-            throw new Exception("Non consistent data");
-        }
+        // if (!Utils.CheckGridConsistency(X, input.OmegaX) || !Utils.CheckGridConsistency(Y, input.OmegaY))
+        // {
+        //     throw new Exception("Non consistent data");
+        // }
 
         var nodes = new Node[X.Length * Y.Length];
         var num = 0;
