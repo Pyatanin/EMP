@@ -31,6 +31,7 @@ public static class Program
         // SLAE solution subroutine
         slae.Solve(input!);
         var result = Utils.ExcludeFictive(slae.Result, grid);
+        Utils.WriteTable(slae.Result, grid);
         // For breakpoint
         var bom = 0;
     }
