@@ -2,7 +2,6 @@
 
 public class InputModel
 {
-    public int Test { get; set; }
     public int Lambda { get; set; }
     public int Gamma { get; set; }
 
