@@ -98,13 +98,13 @@ public class Slae
                     var hYLower = grid.Nodes[i].Y - grid.Nodes[i - shift].Y;
                     var hYUpper = grid.Nodes[i + shift].Y - grid.Nodes[i].Y;
 
-                    diag[i] = -input.Lambda* 2.0 * (1.0 / (hXLeft * hXRight) + 1.0 / (hYLower * hYUpper)) + input.Gamma;
+                    diag[i] = input.Lambda* 2.0 * (1.0 / (hXLeft * hXRight) + 1.0 / (hYLower * hYUpper)) + input.Gamma;
 
-                    u0[i] = input.Lambda * 2.0 / (hXRight * (hXRight + hXLeft));
-                    l0[i - 1] = input.Lambda * 2.0 / (hXLeft * (hXRight + hXLeft));
+                    u0[i] = -input.Lambda * 2.0 / (hXRight * (hXRight + hXLeft));
+                    l0[i - 1] = -input.Lambda * 2.0 / (hXLeft * (hXRight + hXLeft));
 
-                    l1[i - shift] = input.Lambda * 2.0 / (hYUpper * (hYUpper + hYLower));
-                    u1[i] = input.Lambda * 2.0 / (hYLower * (hYUpper + hYLower));
+                    l1[i - shift] = -input.Lambda * 2.0 / (hYLower * (hYUpper + hYLower));
+                    u1[i] = -input.Lambda * 2.0 / (hYUpper * (hYUpper + hYLower));
 
                     rightSideVector[i] = RightSideFunc.Eval(grid.Nodes[i].X, grid.Nodes[i].Y);
                 }

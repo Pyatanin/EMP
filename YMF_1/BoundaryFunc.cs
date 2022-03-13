@@ -18,22 +18,22 @@ public static class BoundaryFunc
     public static Dictionary<string, Func<double, double, double>> First = new()
     {
         {
-            "Left", (x, y) => 0.0
+            "Left", (x, y) => Math.Pow(y, 4)
         },
         {
-            "Upper", (x, y) => x
+            "Upper", (x, y) =>81.0 + Math.Pow(x, 4)
         },
         {
-            "RightUpper", (x, y) => 2.0
+            "RightUpper", (x, y) => 81.0 + Math.Pow(y, 4)
         },
         {
-            "LowerRight", (x, y) => x
+            "LowerRight", (x, y) => 16.0 + Math.Pow(x, 4)
         },
         {
-            "RightLower", (x, y) => 1.0
+            "RightLower", (x, y) => 1.0 + Math.Pow(y, 4)
         },
         {
-            "LowerLeft", (x, y) => x
+            "LowerLeft", (x, y) => Math.Pow(x, 4)
         }
     };
 

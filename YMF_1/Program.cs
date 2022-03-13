@@ -8,13 +8,12 @@ public static class Program
     {
         // Read data from Input.json, get parameters
         /*
-        Test: 0, Test number
         Lambda: 1
         Gamma: 1
-        DischargeRatioX: 1, Discharge ratio for X
-        DischargeRatioY: 1, Discharge ratio for Y
-        AmountPointsX: 5, Amount of points by X
-        AmountPointsY: 5, Number of points in Y
+        DischargeRatioX: [1,1], Discharge ratio for X for every part
+        DischargeRatioY: [1,1], Discharge ratio for Y for every part
+        AmountPointsX: [5,5], Amount of points by X for every part
+        AmountPointsY: [5,5], Number of points in Y for every part
         MaxIter": 1000
         Eps: 1.0e-7,
         Delta: 1.0e-7,
