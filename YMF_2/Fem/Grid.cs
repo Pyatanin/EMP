@@ -11,6 +11,7 @@ public class Grid
 
         if (Math.Abs(area.DischargeRatio - 1) > 1e-10)
         {
+            //Grid creation is based on the development of a geometric progression
             var sumKx = (1 - Math.Pow(area.DischargeRatio, area.AmountPoints - 1)) /
                         (1 - area.DischargeRatio);
             var hX = (area.RightBorder - area.LeftBorder) / sumKx;

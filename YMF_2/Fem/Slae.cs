@@ -7,6 +7,10 @@ namespace YMF_2.Fem;
 
 public class Slae
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="accuracy"></param>
     public void Solve(Accuracy accuracy)
     {
         ResVec = SlaeSolver.Iterate(ResVec, Matrix, 1.0, RhsVec);
