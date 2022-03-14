@@ -57,4 +57,18 @@ public static class SlaeSolver
 
         return GeneralOperations.Norm(diff) / GeneralOperations.Norm(slae.RhsVec);
     }
+    
+    public static double Residual(Matrix matrix, double[] x, double[] f)
+    {
+        var diff = new double[f.Length];
+
+        var innerProd = GeneralOperations.MatMul(matrix, x);
+
+        for (var i = 0; i < f.Length; i++)
+        {
+            diff[i] = f[i] - innerProd[i];
+        }
+
+        return GeneralOperations.Norm(diff);
+    }
 }
