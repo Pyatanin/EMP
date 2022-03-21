@@ -3,8 +3,22 @@ using YMF_2.LinAlg;
 
 namespace YMF_2.Fem;
 
+/// <summary>
+/// The class implements the FEM functionality including boundary conditions,
+/// the SLAE solution method (simple iteration method)
+/// and the use of the relaxation coefficient to improve the method
+/// </summary>
 public static class Solver
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="grid">One-dimensional mesh with nodes to create SLAE</param>
+    /// <param name="inputFuncs">JCON containing the statement of the boundary elliptic problem</param>
+    /// <param name="area">JCON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
+    /// <param name="accuracy">JCON containing information about edge conditions</param>
+    /// <returns></returns>
     public static double[] SolveWithSimpleIteration(Grid grid, InputFuncs inputFuncs, Area area,
         BoundaryConditions boundaryConds, Accuracy accuracy)
     {
@@ -30,6 +44,13 @@ public static class Solver
         return slae.ResVec;
     }
 
+    /// <summary>
+    /// Method for taking into account boundary conditions for a one-dimensional problem
+    /// </summary>
+    /// <param name="m">Matrix instance</param>
+    /// <param name="rhs">Instance of the right side of the SLAE</param>
+    /// <param name="area">JCON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
     private static void ApplyBoundaryConditions(
         Matrix m,
         double[] rhs,
@@ -72,6 +93,17 @@ public static class Solver
         }
     }
 
+    /// <summary>
+    /// search for the minimum of the functional by the golden section method
+    /// </summary>
+    /// <param name="resVec">solution vector</param>
+    /// <param name="grid">One-dimensional mesh with nodes to create SLAE</param>
+    /// <param name="inputFuncs">JCON containing the statement of the boundary elliptic problem</param>
+    /// <param name="prevRes">vector K-1 stagnation tracking solutions</param>
+    /// <param name="accuracy">JCON containing information about edge conditions</param>
+    /// <param name="area">JCON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
+    /// <returns></returns>
     private static double GetRelaxRatio(double[] resVec, Grid grid, InputFuncs inputFuncs, double[] prevRes,
         Accuracy accuracy, Area area, BoundaryConditions boundaryConds)
     {
@@ -106,6 +138,13 @@ public static class Solver
         return (left + right) / 2.0;
     }
 
+    /// <summary>
+    /// getting the value of the residual function at a point
+    /// </summary>
+    /// <param name="resVec">solution vector</param>
+    /// <param name="x">K-1 relaxation coefficient</param>
+    /// <param name="prevRes">solution vector vector</param>
+    /// <returns></returns>
     private static double GetResidualFunc(double[] resVec, Grid grid, InputFuncs inputFuncs, double x, double[] prevRes,
         Area area, BoundaryConditions boundaryConds)
     {
@@ -130,7 +169,7 @@ public static class Solver
 
         return newApprox;
     }
-    
+
     public static double[] SolveWithNewton(Slae slae)
     {
         throw new NotImplementedException();

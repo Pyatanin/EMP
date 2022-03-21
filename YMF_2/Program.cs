@@ -7,6 +7,7 @@ public static class Program
 {
     public static void Main()
     {
+        //Serializing data in JSON format
         var area = JsonSerializer.Deserialize<JsonModels.Area>(File.ReadAllText("input/area.json"))!;
         var inputFuncs =
             JsonSerializer.Deserialize<JsonModels.InputFuncs>(File.ReadAllText("input/inputFuncs.json"))!;
