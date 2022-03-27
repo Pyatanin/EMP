@@ -1,4 +1,3 @@
-using System.Text;
 using YMF_2.Integration;
 using YMF_2.JsonModels;
 using YMF_2.LinAlg;
@@ -97,30 +96,11 @@ public class Slae
         Matrix = new Matrix(upper, center, lower);
     }
 
-    private string BuildRhsFunc(Grid grid, InputFuncs inputFuncs)
+    public Slae()
     {
-        var uKString = BuildUk(grid);
-        var rhsFuncCopy = inputFuncs.RhsFunc!;
-
-        return rhsFuncCopy.Replace("u", uKString);
-    }
-
-    private string BuildUk(Grid grid)
-    {
-        var sb = new StringBuilder();
-
-        for (var i = 0; i < grid.X.Length - 2; i++)
-        {
-            sb.Append(
-                $"({ResVec[i]} * (x - {grid.X[i]}) / ({grid.X[i + 1] - grid.X[i]})) + ");
-            sb.Append($"({ResVec[i + 1]} * ({grid.X[i + 1]} - x) / ({grid.X[i + 1] - grid.X[i]})) + ");
-        }
-
-        sb.Append(
-            $"({ResVec[grid.X.Length - 2]} * (x - {grid.X[^2]}) / ({grid.X[^1] - grid.X[^2]})) + ");
-        sb.Append(
-            $"({ResVec[grid.X.Length - 1]} * ({grid.X[^1]} - x) / ({grid.X[^1] - grid.X[^2]}))");
-        return sb.ToString();
+        RhsVec = null;
+        Matrix = null;
+        ResVec = null;
     }
 
     private static double[][][] BuildLocalStiffness()
@@ -210,7 +190,7 @@ public class Slae
         return localMass;
     }
 
-    public readonly double[] RhsVec;
-    public readonly Matrix Matrix;
-    public double[] ResVec;
+    public readonly double[]? RhsVec;
+    public readonly Matrix? Matrix;
+    public double[]? ResVec;
 }

@@ -24,24 +24,29 @@ public static class Solver
     {
         var initApprox = new double[grid.X.Length];
         initApprox.AsSpan().Fill(1.0);
-        var slae = new Slae(grid, inputFuncs, initApprox);
-        double relaxRatio;
-        ApplyBoundaryConditions(slae.Matrix, slae.RhsVec, area, boundaryConds);
-        slae.Solve(accuracy);
-        var d = SlaeSolver.RelResidual(slae);
-        var st = SlaeSolver.CheckIsStagnate(slae.ResVec, initApprox, accuracy.Delta);
-        while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
-               !SlaeSolver.CheckIsStagnate(slae.ResVec, initApprox, accuracy.Delta))
+        var slae = new Slae();
+        
+        // var slae = new Slae(grid, inputFuncs, initApprox);
+        // ApplyBoundaryConditions(slae.Matrix, slae.RhsVec, area, boundaryConds);
+        // slae.Solve(accuracy);
+        //
+        // double relaxRatio = GetRelaxRatio(slae.ResVec, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
+        // slae.ResVec.AsSpan().CopyTo(initApprox);
+        // var tempInitApprox = UpdateApprox(slae.ResVec, initApprox, relaxRatio);
+        // tempInitApprox.AsSpan().CopyTo(initApprox);
+        
+        do
         {
-            slae.ResVec.AsSpan().CopyTo(initApprox);
             slae = new Slae(grid, inputFuncs, initApprox);
-            ApplyBoundaryConditions(slae.Matrix, slae.RhsVec, area, boundaryConds);
+            ApplyBoundaryConditions(slae.Matrix!, slae.RhsVec!, area, boundaryConds);
             slae.Solve(accuracy);
-            relaxRatio = GetRelaxRatio(slae.ResVec, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
-            initApprox = UpdateApprox(slae.ResVec, initApprox, relaxRatio);
-        }
+            var relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
+            var tempInitApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
+            tempInitApprox.AsSpan().CopyTo(initApprox);
+        } while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
+                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta));
 
-        return slae.ResVec;
+        return slae.ResVec!;
     }
 
     /// <summary>
@@ -63,7 +68,7 @@ public static class Solver
             case "First":
                 m.Center[0] = 1.0;
                 m.Upper[0] = 0.0;
-                m.Lower[0] = 0.0;
+                //m.Lower[0] = 0.0;
                 rhs[0] = Utils.EvalFunc(boundaryConds.LeftFunc, area.LeftBorder);
                 break;
             case "Second":
@@ -79,7 +84,7 @@ public static class Solver
         {
             case "First":
                 m.Center[^1] = 1.0;
-                m.Upper[^1] = 0.0;
+               // m.Upper[^1] = 0.0;
                 m.Lower[^1] = 0.0;
                 rhs[^1] = Utils.EvalFunc(boundaryConds.RightFunc, area.RightBorder);
                 break;
