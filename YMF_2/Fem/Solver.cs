@@ -23,14 +23,19 @@ public static class Solver
         BoundaryConditions boundaryConds, Accuracy accuracy)
     {
         var initApprox = new double[grid.X.Length];
-        initApprox.AsSpan().Fill(1.0);
-        var slae = new Slae();
+        initApprox.AsSpan().Fill(0.0);
+        var relaxRatio = accuracy.RelaxRatio;
+        Slae slae;
         do
         {
             slae = new Slae(grid, inputFuncs, initApprox);
             ApplyBoundaryConditions(slae.Matrix!, slae.RhsVec!, area, boundaryConds);
             slae.Solve(accuracy);
-            var relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
+            if (accuracy.AutoRelax)
+            {
+                relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
+            }
+
             initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
         } while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
                  !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta));

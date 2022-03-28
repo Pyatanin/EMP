@@ -6,5 +6,8 @@ public class Accuracy
     public double Eps { get; init; }
     public double Delta { get; init; }
 
+    public bool AutoRelax { get; init; }
+
     public double RelaxRatio { get; init; }
+    
 }
