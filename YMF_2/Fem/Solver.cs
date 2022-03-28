@@ -32,8 +32,7 @@ public static class Solver
             ApplyBoundaryConditions(slae.Matrix!, slae.RhsVec!, area, boundaryConds);
             slae.Solve(accuracy);
             var relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
-            var tempInitApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
-            tempInitApprox.AsSpan().CopyTo(initApprox);
+            initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
         } while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
                  !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta));
 
@@ -66,7 +65,9 @@ public static class Solver
                 break;
             case "Third":
                 m.Center[0] += boundaryConds.Beta;
+                m.Center[1] += boundaryConds.Beta;
                 rhs[0] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.LeftFunc, area.LeftBorder);
+                rhs[1] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.LeftFunc, area.LeftBorder);
                 break;
         }
 
@@ -82,7 +83,9 @@ public static class Solver
                 break;
             case "Third":
                 m.Center[^1] += boundaryConds.Beta;
+                m.Center[^2] += boundaryConds.Beta;
                 rhs[^1] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.RightFunc, area.RightBorder);
+                rhs[^2] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.RightFunc, area.RightBorder);
                 break;
         }
     }
@@ -101,14 +104,13 @@ public static class Solver
     private static double GetRelaxRatio(double[] resVec, Grid grid, InputFuncs inputFuncs, double[] prevRes,
         Accuracy accuracy, Area area, BoundaryConditions boundaryConds)
     {
-        double gold = (Math.Pow(5, 0.5) - 1.0) / 2.0;
-        double xLeft, xRight, funcLeft, funcRight, left, right;
-        left = 0.0;
-        right = 1.0;
-        xLeft = (1 - gold);
-        xRight = gold;
-        funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds);
-        funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds);
+        var gold = (Math.Pow(5, 0.5) - 1.0) / 2.0;
+        var left = 0.0;
+        var right = 1.0;
+        var xLeft = (1 - gold);
+        var xRight = gold;
+        var funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds);
+        var funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds);
         while (Math.Abs(right - left) > accuracy.Eps)
         {
             if (funcLeft > funcRight)

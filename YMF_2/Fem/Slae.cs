@@ -32,9 +32,11 @@ public class Slae
         ResVec = new double[grid.X.Length];
         initApprox.AsSpan().CopyTo(ResVec);
         RhsVec = new double[grid.X.Length];
-        var rhsCalc = new Sprache.Calc.XtensibleCalculator();
-        var toEvalRhs = rhsCalc.ParseFunction(inputFuncs.RhsFunc).Compile();
-        
+        var calc = new Sprache.Calc.XtensibleCalculator();
+        var toEvalRhs = calc.ParseFunction(inputFuncs.RhsFunc).Compile();
+        var toEvalLambda = calc.ParseFunction(inputFuncs.Lambda).Compile();
+        var toEvalGamma = calc.ParseFunction(inputFuncs.Gamma).Compile();
+
         var localStiffness = BuildLocalStiffness();
         var localMass = BuildLocalMass();
 
@@ -46,43 +48,43 @@ public class Slae
         {
             var step = grid.X[i + 1] - grid.X[i];
 
-            #region matrixBuild
+            #region matrix Build
 
             #region center
 
-            center[i] += (Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i]) * localStiffness[0][0][0] +
-                          Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i + 1]) * localStiffness[1][0][0]) / step +
-                         (Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i]) * localMass[0][0][0] +
-                          Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i + 1]) * localMass[1][0][0]) * step;
+            center[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][0] +
+                          toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][0]) / step +
+                         (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][0] +
+                          toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][0]) * step;
 
-            center[i + 1] += (Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i]) * localStiffness[0][1][1] +
-                              Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i + 1]) * localStiffness[1][1][1]) / step +
-                             (Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i]) * localMass[0][1][1] +
-                              Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i + 1]) * localMass[1][1][1]) * step;
+            center[i + 1] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][1] +
+                              toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][1]) / step +
+                             (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][1] +
+                              toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][1]) * step;
 
             #endregion
 
             #region upper
 
-            upper[i] += (Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i]) * localStiffness[0][0][1] +
-                         Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i + 1]) * localStiffness[1][0][1]) / step +
-                        (Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i]) * localMass[0][0][1] +
-                         Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i + 1]) * localMass[1][0][1]) * step;
+            upper[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][1] +
+                         toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][1]) / step +
+                        (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][1] +
+                         toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][1]) * step;
 
             #endregion
 
             #region lower
 
-            lower[i] += (Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i]) * localStiffness[0][1][0] +
-                         Utils.EvalFunc(inputFuncs.Lambda!, grid.X[i + 1]) * localStiffness[1][1][0]) / step +
-                        (Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i]) * localMass[0][1][0] +
-                         Utils.EvalFunc(inputFuncs.Gamma!, grid.X[i + 1]) * localMass[1][1][0]) * step;
+            lower[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][0] +
+                         toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][0]) / step +
+                        (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][0] +
+                         toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][0]) * step;
 
             #endregion
 
             #endregion
 
-            #region buildRhs
+            #region rhs Build
 
 
             RhsVec[i] += step * (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i])) * localMass[2][0][0] +
