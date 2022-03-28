@@ -64,9 +64,7 @@ public static class Solver
                 break;
             case "Third":
                 m.Center[0] += boundaryConds.Beta;
-                m.Center[1] += boundaryConds.Beta;
                 rhs[0] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.LeftFunc, area.LeftBorder);
-                rhs[1] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.LeftFunc, area.LeftBorder);
                 break;
         }
 
@@ -82,9 +80,7 @@ public static class Solver
                 break;
             case "Third":
                 m.Center[^1] += boundaryConds.Beta;
-                m.Center[^2] += boundaryConds.Beta;
                 rhs[^1] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.RightFunc, area.RightBorder);
-                rhs[^2] += boundaryConds.Beta * Utils.EvalFunc(boundaryConds.RightFunc, area.RightBorder);
                 break;
         }
     }
