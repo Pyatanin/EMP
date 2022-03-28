@@ -107,7 +107,7 @@ public class Slae
 
     private static double[][][] BuildLocalStiffness()
     {
-        var grid = Integrator.Make0To1Grid();
+        var grid = Integrator.MakeGrid(0, 1);
 
         var localStiffness = new double[2][][];
         localStiffness[0] = new double[2][];
@@ -144,7 +144,7 @@ public class Slae
 
     private static double[][][] BuildLocalMass()
     {
-        var grid = Integrator.Make0To1Grid();
+        var grid = Integrator.MakeGrid(0, 1);
 
         var localMass = new double[3][][];
         localMass[0] = new double[2][];

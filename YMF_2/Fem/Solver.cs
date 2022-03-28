@@ -25,7 +25,6 @@ public static class Solver
         var initApprox = new double[grid.X.Length];
         initApprox.AsSpan().Fill(1.0);
         var slae = new Slae();
-
         do
         {
             slae = new Slae(grid, inputFuncs, initApprox);
