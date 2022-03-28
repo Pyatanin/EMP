@@ -1,4 +1,5 @@
 using YMF_2.Fem;
+using YMF_2.JsonModels;
 
 namespace YMF_2.LinAlg;
 
@@ -70,5 +71,19 @@ public static class SlaeSolver
         }
 
         return GeneralOperations.Norm(diff);
+    }
+
+    public static double RelTolerance(Slae slae, InputFuncs inputFuncs, Grid grid)
+    {
+        var calc = new Sprache.Calc.XtensibleCalculator();
+        var toEvalUStar = calc.ParseFunction(inputFuncs.UStar).Compile();
+        var diff = new double[slae.ResVec.Length];
+        var uStarVec = new double[slae.ResVec.Length];
+        for (var i = 0; i < slae.ResVec.Length; i++)
+        {
+            uStarVec[i] = toEvalUStar(Utils.MakeDict1D(grid.X[i]));
+            diff[i] = Math.Abs(slae.ResVec[i] - uStarVec[i]);
+        }
+        return GeneralOperations.Norm(diff)/ GeneralOperations.Norm(uStarVec);
     }
 }

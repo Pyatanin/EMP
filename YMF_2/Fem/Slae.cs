@@ -98,13 +98,6 @@ public class Slae
         Matrix = new Matrix(upper, center, lower);
     }
 
-    public Slae()
-    {
-        RhsVec = null;
-        Matrix = null;
-        ResVec = null;
-    }
-
     private static double[][][] BuildLocalStiffness()
     {
         var grid = Integrator.MakeGrid(0, 1);

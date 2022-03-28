@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using YMF_2.JsonModels;
 using YMF_2.LinAlg;
 
@@ -19,13 +20,15 @@ public static class Solver
     /// <param name="boundaryConds">JCON containing information about edge conditions</param>
     /// <param name="accuracy">JCON containing information about edge conditions</param>
     /// <returns></returns>
-    public static double[] SolveWithSimpleIteration(Grid grid, InputFuncs inputFuncs, Area area,
+    public static (double[], ResultStats) SolveWithSimpleIteration(Grid grid, InputFuncs inputFuncs, Area area,
         BoundaryConditions boundaryConds, Accuracy accuracy)
     {
         var initApprox = new double[grid.X.Length];
-        initApprox.AsSpan().Fill(0.0);
         var relaxRatio = accuracy.RelaxRatio;
+        var iter = 0;
         Slae slae;
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
         do
         {
             slae = new Slae(grid, inputFuncs, initApprox);
@@ -37,10 +40,18 @@ public static class Solver
             }
 
             initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
+            iter++;
         } while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
-                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta));
-
-        return slae.ResVec!;
+                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta) && iter < accuracy.MaxIter);
+        stopWatch.Stop();
+        var resultStats = new ResultStats
+        {
+            IterationsCount = iter,
+            RelResidual = SlaeSolver.RelResidual(slae),
+            RelTolerance = SlaeSolver.RelTolerance(slae, inputFuncs, grid),
+            ElapsedTime = stopWatch.ElapsedMilliseconds
+        };
+        return (slae.ResVec!, resultStats);
     }
 
     /// <summary>

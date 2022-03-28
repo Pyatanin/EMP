@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Data.Analysis;
 using YMF_2.JsonModels;
 
@@ -34,7 +35,7 @@ public static class Utils
             uStarBuf.Add(toEvalUStar(MakeDict1D(grid.X[i])));
             absTolBuf.Add(Math.Abs(toEvalUStar(MakeDict1D(grid.X[i])) - resultVec[i]));
         }
-
+        
         var xCol = new PrimitiveDataFrameColumn<double>("x", xBuf);
         var uCol = new PrimitiveDataFrameColumn<double>("u", uBuf);
         var uStarCol = new PrimitiveDataFrameColumn<double>("u*", uStarBuf);
@@ -43,5 +44,17 @@ public static class Utils
         var table = new DataFrame(xCol, uCol, uStarCol, absTolCol);
         Console.WriteLine(table);
         DataFrame.WriteCsv(table, "res.csv", separator: ' ');
+    }
+
+    public static void WriteJson(ResultStats resultStats)
+    {
+        var streamWriter = new StreamWriter("ResultStats.json", false);
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+        var outputJson = JsonSerializer.Serialize(resultStats, options);
+        streamWriter.Write(outputJson);
+        streamWriter.Close();
     }
 }
