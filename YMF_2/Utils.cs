@@ -1,3 +1,6 @@
+using Microsoft.Data.Analysis;
+using YMF_2.JsonModels;
+
 namespace YMF_2;
 
 /// <summary>
@@ -16,16 +19,20 @@ public static class Utils
     
     public static Dictionary<string, double> MakeDict2D(double x, double u) => new() {{"x", x}, {"u",u}};
     
-    public static void WriteTable(double[] resultVec, Fem.Grid grid)
+    public static void WriteTable(double[] resultVec, Fem.Grid grid, InputFuncs inputFuncs)
     {
         var xBuf = new List<double>();
         var uBuf = new List<double>();
         var uStarBuf = new List<double>();
         var absTolBuf = new List<double>();
-
+        var calc = new Sprache.Calc.XtensibleCalculator();
+        var toEvalUStar = calc.ParseFunction(inputFuncs.UStar).Compile();
         for (var i = 0; i < grid.X.Length; i++)
         {
-            
+            xBuf.Add(grid.X[i]);
+            uBuf.Add(resultVec[i]);
+            uStarBuf.Add(toEvalUStar(MakeDict1D(grid.X[i])));
+            absTolBuf.Add(Math.Abs(toEvalUStar(MakeDict1D(grid.X[i])) - resultVec[i]));
         }
 
         var xCol = new PrimitiveDataFrameColumn<double>("x", xBuf);

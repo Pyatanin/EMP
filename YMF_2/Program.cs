@@ -18,7 +18,9 @@ public static class Program
 
         var grid = new Grid(area);
         var result = Solver.SolveWithSimpleIteration(grid, inputFuncs, area, boundaryConditions, accuracy);
-
+        
+        Utils.WriteTable(result, grid, inputFuncs);
+        
         var bim = 0;
     }
 }
