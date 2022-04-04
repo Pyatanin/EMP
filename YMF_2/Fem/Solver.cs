@@ -15,10 +15,10 @@ public static class Solver
     /// 
     /// </summary>
     /// <param name="grid">One-dimensional mesh with nodes to create SLAE</param>
-    /// <param name="inputFuncs">JCON containing the statement of the boundary elliptic problem</param>
-    /// <param name="area">JCON containing information about grid parameters</param>
-    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
-    /// <param name="accuracy">JCON containing information about edge conditions</param>
+    /// <param name="inputFuncs">JSON containing the statement of the boundary elliptic problem</param>
+    /// <param name="area">JSON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JSON containing information about edge conditions</param>
+    /// <param name="accuracy">JSON containing information about edge conditions</param>
     /// <returns></returns>
     public static (double[], ResultStats) SolveWithSimpleIteration(Grid grid, InputFuncs inputFuncs, Area area,
         BoundaryConditions boundaryConds, Accuracy accuracy)
@@ -59,8 +59,8 @@ public static class Solver
     /// </summary>
     /// <param name="m">Matrix instance</param>
     /// <param name="rhs">Instance of the right side of the SLAE</param>
-    /// <param name="area">JCON containing information about grid parameters</param>
-    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
+    /// <param name="area">JSON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JSON containing information about edge conditions</param>
     private static void ApplyBoundaryConditions(
         Matrix m,
         double[] rhs,
@@ -106,11 +106,11 @@ public static class Solver
     /// </summary>
     /// <param name="resVec">solution vector</param>
     /// <param name="grid">One-dimensional mesh with nodes to create SLAE</param>
-    /// <param name="inputFuncs">JCON containing the statement of the boundary elliptic problem</param>
+    /// <param name="inputFuncs">JSON containing the statement of the boundary elliptic problem</param>
     /// <param name="prevRes">vector K-1 stagnation tracking solutions</param>
-    /// <param name="accuracy">JCON containing information about edge conditions</param>
-    /// <param name="area">JCON containing information about grid parameters</param>
-    /// <param name="boundaryConds">JCON containing information about edge conditions</param>
+    /// <param name="accuracy">JSON containing information about edge conditions</param>
+    /// <param name="area">JSON containing information about grid parameters</param>
+    /// <param name="boundaryConds">JSON containing information about edge conditions</param>
     /// <returns></returns>
     private static double GetRelaxRatio(double[] resVec, Grid grid, InputFuncs inputFuncs, double[] prevRes,
         Accuracy accuracy, Area area, BoundaryConditions boundaryConds)
