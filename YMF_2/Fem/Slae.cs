@@ -47,39 +47,45 @@ public class Slae
         for (var i = 0; i < grid.X.Length - 1; i++)
         {
             var step = grid.X[i + 1] - grid.X[i];
-
+            var locGam = (toEvalGamma(Utils.MakeDict1D(grid.X[i])) +
+                          toEvalGamma(Utils.MakeDict1D(grid.X[i + 1]))) / 2.0;
+            var locLam = (toEvalLambda(Utils.MakeDict1D(grid.X[i])) +
+                          toEvalLambda(Utils.MakeDict1D(grid.X[i + 1]))) / 2.0;
             #region matrix Build
 
             #region center
 
-            center[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][0] +
-                          toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][0]) / step +
-                         (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][0] +
-                          toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][0]) * step;
+            // center[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][0] +
+                          // toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][0]) / step +
+                         // (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][0] +
+                          // toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][0]) * step;
 
-            center[i + 1] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][1] +
-                              toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][1]) / step +
-                             (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][1] +
-                              toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][1]) * step;
+            // center[i + 1] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][1] +
+                              // toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][1]) / step +
+                             // (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][1] +
+                              // toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][1]) * step;
+            center[i] += locLam * localStiffness[2][0][0] / step + locGam * step * localMass[2][0][0];
+            center[i + 1] += locLam * localStiffness[2][1][1] / step + locGam * step * localMass[2][1][1];
 
             #endregion
 
             #region upper
 
-            upper[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][1] +
-                         toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][1]) / step +
-                        (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][1] +
-                         toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][1]) * step;
+            // upper[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][0][1] +
+                         // toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][0][1]) / step +
+                        // (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][0][1] +
+                         // toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][0][1]) * step;
+            upper[i] += locLam * localStiffness[2][0][1] / step + locGam * step * localMass[2][0][1];
 
             #endregion
 
             #region lower
 
-            lower[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][0] +
-                         toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][0]) / step +
-                        (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][0] +
-                         toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][0]) * step;
-
+            // lower[i] += (toEvalLambda(Utils.MakeDict1D(grid.X[i])) * localStiffness[0][1][0] +
+                         // toEvalLambda(Utils.MakeDict1D(grid.X[i + 1])) * localStiffness[1][1][0]) / step +
+                        // (toEvalGamma(Utils.MakeDict1D(grid.X[i])) * localMass[0][1][0] +
+                         // toEvalGamma(Utils.MakeDict1D(grid.X[i + 1])) * localMass[1][1][0]) * step;
+            lower[i] += locLam * localStiffness[2][1][0] / step + locGam * step * localMass[2][1][0];
             #endregion
 
             #endregion
@@ -104,25 +110,22 @@ public class Slae
             for (int i = 0; i < grid.X.Length - 1; i++)
             {
                 var step = grid.X[i + 1] - grid.X[i];
-                double deltaQ = 1.0e-4;
+                double deltaQ = 1.0e-7;
                 double[][] locNewton = new double[2][];
                 locNewton[0] = new double[2];
                 locNewton[1] = new double[2];
-                locNewton[0][0] = step * localMass[2][0][0] *
-                    (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i] + deltaQ)) -
-                     toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i]))) / deltaQ;
-                locNewton[0][1] = step *
-                                  (toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1] + deltaQ)) *
-                                   localMass[2][0][1] -
-                                   toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) *
-                                   localMass[2][0][1]) /
-                                   deltaQ;
-                locNewton[1][0] = step *
-                    (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i] + deltaQ)) * localMass[2][1][0] -
-                     toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i])) * localMass[2][1][0]) / deltaQ;
-                locNewton[0][1] = step *
-                    (toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1] + deltaQ)) * localMass[2][1][1] -
-                     toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) * localMass[2][1][1]) / deltaQ;
+                var db0 =  (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i] + deltaQ)) -
+                            toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i]))) / (deltaQ);
+                var db1 = (toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1] + deltaQ)) -
+                           toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1]))) /
+                          (deltaQ);
+                locNewton[0][0] = step * localMass[2][0][0] * db0;
+
+                locNewton[0][1] = step * localMass[2][0][1] * db1;
+
+                locNewton[1][0] = step * localMass[2][1][0] * db0;
+                
+                locNewton[1][1] = step * localMass[2][1][1] * db1;
                 center[i] -= locNewton[0][0];
                 center[i + 1] -= locNewton[1][1];
                 upper[i] -= locNewton[0][1];
@@ -141,9 +144,10 @@ public class Slae
     {
         var grid = Integrator.MakeGrid(0, 1);
 
-        var localStiffness = new double[2][][];
+        var localStiffness = new double[3][][];
         localStiffness[0] = new double[2][];
         localStiffness[1] = new double[2][];
+        localStiffness[2] = new double[2][];
 
         var integralValues = new[]
         {
@@ -155,6 +159,7 @@ public class Slae
         {
             localStiffness[0][i] = new double[2];
             localStiffness[1][i] = new double[2];
+            localStiffness[2][i] = new double[2];
 
             for (var j = 0; j < 2; j++)
             {
@@ -162,11 +167,13 @@ public class Slae
                 {
                     localStiffness[0][i][j] = integralValues[0];
                     localStiffness[1][i][j] = integralValues[1];
+                    localStiffness[2][i][j] = 1.0;
                 }
                 else
                 {
                     localStiffness[0][i][j] = -integralValues[0];
                     localStiffness[1][i][j] = -integralValues[1];
+                    localStiffness[2][i][j] = -1.0;
                 }
             }
         }

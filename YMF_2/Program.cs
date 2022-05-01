@@ -17,7 +17,7 @@ public static class Program
                 File.ReadAllText("input/boundaryConditions.json"))!;
         var accuracy = JsonSerializer.Deserialize<Accuracy>(File.ReadAllText("input/accuracy.json"))!;
         var grid = new Grid(area);
-        //var (result, resultStats) = Solver.SolveWithSimpleIteration(grid, inputFuncs, area, boundaryConditions, accuracy);
+        // var (result, resultStats) = Solver.SolveWithSimpleIteration(grid, inputFuncs, area, boundaryConditions, accuracy);
         var (result, resultStats) = Solver.SolveWithNewton(grid, inputFuncs, area, boundaryConditions, accuracy);
         Utils.WriteTable(result, grid, inputFuncs);
         Utils.WriteJson(resultStats);
