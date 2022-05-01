@@ -31,12 +31,12 @@ public static class Solver
         stopWatch.Start();
         do
         {
-            slae = new Slae(grid, inputFuncs, initApprox);
+            slae = new Slae(grid, inputFuncs, initApprox, false);
             ApplyBoundaryConditions(slae.Matrix!, slae.RhsVec!, area, boundaryConds);
             slae.Solve(accuracy);
             if (accuracy.AutoRelax)
             {
-                relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds);
+                relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds, false);
             }
 
             initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
@@ -113,15 +113,15 @@ public static class Solver
     /// <param name="boundaryConds">JSON containing information about edge conditions</param>
     /// <returns></returns>
     private static double GetRelaxRatio(double[] resVec, Grid grid, InputFuncs inputFuncs, double[] prevRes,
-        Accuracy accuracy, Area area, BoundaryConditions boundaryConds)
+        Accuracy accuracy, Area area, BoundaryConditions boundaryConds, bool withNewton)
     {
         var gold = (Math.Pow(5, 0.5) - 1.0) / 2.0;
         var left = 0.0;
         var right = 1.0;
         var xLeft = (1 - gold);
         var xRight = gold;
-        var funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds);
-        var funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds);
+        var funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds, withNewton);
+        var funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds, withNewton);
         while (Math.Abs(right - left) > accuracy.Eps)
         {
             if (funcLeft > funcRight)
@@ -130,7 +130,7 @@ public static class Solver
                 xLeft = xRight;
                 funcLeft = funcRight;
                 xRight = left + gold * (right - left);
-                funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds);
+                funcRight = GetResidualFunc(resVec, grid, inputFuncs, xRight, prevRes, area, boundaryConds, withNewton);
             }
             else
             {
@@ -138,7 +138,7 @@ public static class Solver
                 xRight = xLeft;
                 funcRight = funcLeft;
                 xLeft = left + (1.0 - gold) * (right - left);
-                funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds);
+                funcLeft = GetResidualFunc(resVec, grid, inputFuncs, xLeft, prevRes, area, boundaryConds, withNewton);
             }
         }
 
@@ -153,7 +153,7 @@ public static class Solver
     /// <param name="prevRes">solution vector vector</param>
     /// <returns></returns>
     private static double GetResidualFunc(double[] resVec, Grid grid, InputFuncs inputFuncs, double x, double[] prevRes,
-        Area area, BoundaryConditions boundaryConds)
+        Area area, BoundaryConditions boundaryConds, bool withNewton)
     {
         var approx = new double[prevRes.Length];
         for (int i = 0; i < prevRes.Length; i++)
@@ -161,7 +161,7 @@ public static class Solver
             approx[i] = x * resVec[i] + (1.0 - x) * prevRes[i];
         }
 
-        var slae = new Slae(grid, inputFuncs, approx);
+        var slae = new Slae(grid, inputFuncs, approx, withNewton);
         ApplyBoundaryConditions(slae.Matrix, slae.RhsVec, area, boundaryConds);
         return SlaeSolver.Residual(slae.Matrix, approx, slae.RhsVec);
     }
@@ -177,8 +177,37 @@ public static class Solver
         return newApprox;
     }
 
-    public static double[] SolveWithNewton(Slae slae)
+    public static (double[], ResultStats) SolveWithNewton(Grid grid, InputFuncs inputFuncs, Area area,
+        BoundaryConditions boundaryConds, Accuracy accuracy)
     {
-        throw new NotImplementedException();
+        var initApprox = new double[grid.X.Length];
+        var relaxRatio = accuracy.RelaxRatio;
+        var iter = 0;
+        Slae slae;
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
+        do
+        {
+            slae = new Slae(grid, inputFuncs, initApprox, true);
+            ApplyBoundaryConditions(slae.Matrix!, slae.RhsVec!, area, boundaryConds);
+            slae.Solve(accuracy);
+            if (accuracy.AutoRelax)
+            {
+                relaxRatio = GetRelaxRatio(slae.ResVec!, grid, inputFuncs, initApprox, accuracy, area, boundaryConds, true);
+            }
+
+            initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
+            iter++;
+        } while (SlaeSolver.RelResidual(slae.NonLinMatrix, initApprox, slae.NonLinRhsVec) > accuracy.Eps &&
+                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta) && iter < accuracy.MaxIter);
+        stopWatch.Stop();
+        var resultStats = new ResultStats
+        {
+            IterationsCount = iter,
+            RelResidual = SlaeSolver.RelResidual(slae),
+            RelTolerance = SlaeSolver.RelTolerance(slae, inputFuncs, grid),
+            ElapsedTime = stopWatch.ElapsedMilliseconds
+        };
+        return (slae.ResVec!, resultStats);
     }
 }

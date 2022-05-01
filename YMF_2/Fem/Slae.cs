@@ -27,7 +27,7 @@ public class Slae
         }
     }
 
-    public Slae(Grid grid, InputFuncs inputFuncs, double[] initApprox)
+    public Slae(Grid grid, InputFuncs inputFuncs, double[] initApprox, bool withNewton)
     {
         ResVec = new double[grid.X.Length];
         initApprox.AsSpan().CopyTo(ResVec);
@@ -43,7 +43,7 @@ public class Slae
         var upper = new double[grid.X.Length - 1];
         var center = new double[grid.X.Length];
         var lower = new double[grid.X.Length - 1];
-
+        
         for (var i = 0; i < grid.X.Length - 1; i++)
         {
             var step = grid.X[i + 1] - grid.X[i];
@@ -86,15 +86,54 @@ public class Slae
 
             #region rhs Build
 
-
             RhsVec[i] += step * (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i])) * localMass[2][0][0] +
-                         toEvalRhs(Utils.MakeDict2D(grid.X[i+1], ResVec[i+1])) * localMass[2][0][1]);
+                                 toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) * localMass[2][0][1]);
             RhsVec[i + 1] += step * (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i])) * localMass[2][1][0] +
-                             toEvalRhs(Utils.MakeDict2D(grid.X[i+1], ResVec[i+1])) * localMass[2][1][1]);
+                                     toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) * localMass[2][1][1]);
 
             #endregion
         }
 
+        NonLinMatrix = new Matrix(upper, center, lower);
+        NonLinRhsVec = new double[ResVec.Length];
+        RhsVec.AsSpan().CopyTo(NonLinRhsVec);
+        #region add Newton
+
+        if (withNewton)
+        {
+            for (int i = 0; i < grid.X.Length - 1; i++)
+            {
+                var step = grid.X[i + 1] - grid.X[i];
+                double deltaQ = 1.0e-4;
+                double[][] locNewton = new double[2][];
+                locNewton[0] = new double[2];
+                locNewton[1] = new double[2];
+                locNewton[0][0] = step * localMass[2][0][0] *
+                    (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i] + deltaQ)) -
+                     toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i]))) / deltaQ;
+                locNewton[0][1] = step *
+                                  (toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1] + deltaQ)) *
+                                   localMass[2][0][1] -
+                                   toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) *
+                                   localMass[2][0][1]) /
+                                   deltaQ;
+                locNewton[1][0] = step *
+                    (toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i] + deltaQ)) * localMass[2][1][0] -
+                     toEvalRhs(Utils.MakeDict2D(grid.X[i], ResVec[i])) * localMass[2][1][0]) / deltaQ;
+                locNewton[0][1] = step *
+                    (toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1] + deltaQ)) * localMass[2][1][1] -
+                     toEvalRhs(Utils.MakeDict2D(grid.X[i + 1], ResVec[i + 1])) * localMass[2][1][1]) / deltaQ;
+                center[i] -= locNewton[0][0];
+                center[i + 1] -= locNewton[1][1];
+                upper[i] -= locNewton[0][1];
+                lower[i] -= locNewton[1][0];
+
+                RhsVec[i] -= ResVec[i] * locNewton[0][0] + ResVec[i + 1] * locNewton[0][1];
+                RhsVec[i + 1] -= ResVec[i] * locNewton[1][0] + ResVec[i + 1] * locNewton[1][1];
+            }
+        }
+
+        #endregion
         Matrix = new Matrix(upper, center, lower);
     }
 
@@ -143,7 +182,7 @@ public class Slae
         localMass[0] = new double[2][];
         localMass[1] = new double[2][];
         localMass[2] = new double[2][];
-        
+
         var integralValues = new[]
         {
             Integrator.Integrate1D(grid, x => LinearBasis.Func[0](x) * LinearBasis.Func[0](x) * LinearBasis.Func[0](x)),
@@ -187,5 +226,7 @@ public class Slae
 
     public readonly double[]? RhsVec;
     public readonly Matrix? Matrix;
+    public readonly Matrix? NonLinMatrix;
+    public double[]? NonLinRhsVec;
     public double[]? ResVec;
 }
