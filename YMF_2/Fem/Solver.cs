@@ -24,6 +24,7 @@ public static class Solver
         BoundaryConditions boundaryConds, Accuracy accuracy)
     {
         var initApprox = new double[grid.X.Length];
+        initApprox.AsSpan().Fill(1.0);
         var relaxRatio = accuracy.RelaxRatio;
         var iter = 0;
         Slae slae;
@@ -41,16 +42,16 @@ public static class Solver
 
             initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
             iter++; 
-            Console.Write($"\r[info][SI]\titer:{iter}\tresidual:{SlaeSolver.RelResidual(slae.Matrix, initApprox, slae.RhsVec)}\trelax ratio:{relaxRatio}");
-        } while (SlaeSolver.RelResidual(slae) > accuracy.Eps &&
-                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta) && iter < accuracy.MaxIter);
+            Console.Write($"\r[info][SI]\titer:{iter}\tresidual:{SlaeSolver.RelResidual(slae.Matrix!, slae.ResVec!, slae.RhsVec!)}\trelax ratio:{relaxRatio}");
+        } while (SlaeSolver.RelResidual(slae.Matrix!, slae.ResVec!, slae.RhsVec!) > accuracy.Eps &&
+                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, slae.ResVec!, accuracy.Delta) && iter < accuracy.MaxIter);
         Console.WriteLine();
 
         stopWatch.Stop();
         var resultStats = new ResultStats
         {
             IterationsCount = iter,
-            RelResidual = SlaeSolver.RelResidual(slae),
+            RelResidual = SlaeSolver.RelResidual(slae.Matrix!, slae.ResVec!, slae.RhsVec!),
             RelTolerance = SlaeSolver.RelTolerance(slae, inputFuncs, grid),
             ElapsedTime = stopWatch.ElapsedMilliseconds
         };
@@ -203,16 +204,16 @@ public static class Solver
             initApprox = UpdateApprox(slae.ResVec!, initApprox, relaxRatio);
             iter++;
             ApplyBoundaryConditions(slae.NonLinMatrix!, slae.NonLinRhsVec!, area, boundaryConds);
-            Console.Write($"\r[info][N]\titer:{iter}\tresidual:{SlaeSolver.RelResidual(slae.NonLinMatrix!, initApprox, slae.NonLinRhsVec!)}\trelax ratio:{relaxRatio}");
-        } while (SlaeSolver.RelResidual(slae.NonLinMatrix!, initApprox, slae.NonLinRhsVec!) > accuracy.Eps &&
-                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, initApprox, accuracy.Delta) && iter < accuracy.MaxIter);
+            Console.Write($"\r[info][N]\titer:{iter}\tresidual:{SlaeSolver.RelResidual(slae.NonLinMatrix!, slae.ResVec!, slae.NonLinRhsVec!)}\trelax ratio:{relaxRatio}");
+        } while (SlaeSolver.RelResidual(slae.NonLinMatrix!, slae.ResVec!, slae.NonLinRhsVec!) > accuracy.Eps &&
+                 !SlaeSolver.CheckIsStagnate(slae.ResVec!, slae.ResVec!, accuracy.Delta) && iter < accuracy.MaxIter);
         Console.WriteLine();
 
         stopWatch.Stop();
         var resultStats = new ResultStats
         {
             IterationsCount = iter,
-            RelResidual = SlaeSolver.RelResidual(slae.NonLinMatrix!, initApprox, slae.NonLinRhsVec!),
+            RelResidual = SlaeSolver.RelResidual(slae.NonLinMatrix!, slae.ResVec!, slae.NonLinRhsVec!),
             RelTolerance = SlaeSolver.RelTolerance(slae, inputFuncs, grid),
             ElapsedTime = stopWatch.ElapsedMilliseconds
         };

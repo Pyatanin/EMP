@@ -21,7 +21,7 @@ public static class GeneralOperations
         var res = 0.0;
         res += matrix.Center[i] * vec[i];
 
-        if (i >= 0 && i < matrix.Size - 1)
+        if (i < matrix.Size - 1)
         {
             res += matrix.Upper[i] * vec[i + 1];
         }

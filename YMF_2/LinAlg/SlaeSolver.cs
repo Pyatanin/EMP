@@ -9,11 +9,8 @@ public static class SlaeSolver
     {
         for (var i = 0; i < x.Length; i++)
         {
-            if (matrix.Center[i] != 0.0)
-            {
-                var sum = GeneralOperations.Dot(i, matrix, x);
-                x[i] += w * (f[i] - sum) / matrix.Center[i];
-            }
+            var sum = GeneralOperations.Dot(i, matrix, x);
+            x[i] += w * (f[i] - sum) / matrix.Center[i];
         }
 
         return x;
@@ -58,7 +55,7 @@ public static class SlaeSolver
 
         return GeneralOperations.Norm(diff) / GeneralOperations.Norm(slae.RhsVec);
     }
-    
+
     public static double Residual(Matrix matrix, double[] x, double[] f)
     {
         var diff = new double[f.Length];
@@ -84,6 +81,7 @@ public static class SlaeSolver
             uStarVec[i] = toEvalUStar(Utils.MakeDict1D(grid.X[i]));
             diff[i] = Math.Abs(slae.ResVec[i] - uStarVec[i]);
         }
-        return GeneralOperations.Norm(diff)/ GeneralOperations.Norm(uStarVec);
+
+        return GeneralOperations.Norm(diff) / GeneralOperations.Norm(uStarVec);
     }
 }
